@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 export default function ProductDetails() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
-  const [product, setProduct] = useState({ price: "", product_url: "" });
+  const [product, setProduct] = useState({ amazon: {}, flipkart: {} });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -33,9 +33,14 @@ export default function ProductDetails() {
         <p style={{ color: "red" }}>{error}</p>
       ) : (
         <>
-          <h1>Amazon Price: {product.price}</h1>
-          <a href={product.product_url} target="_blank" rel="noopener noreferrer">
+          <h1>Amazon Price: {product.amazon.price}</h1>
+          <a href={product.amazon.product_url} target="_blank" rel="noopener noreferrer">
             🔗 View on Amazon
+          </a>
+
+          <h1>Flipkart Price: {product.flipkart.price}</h1>
+          <a href={product.flipkart.product_url} target="_blank" rel="noopener noreferrer">
+            🔗 View on Flipkart
           </a>
         </>
       )}

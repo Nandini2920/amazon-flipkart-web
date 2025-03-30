@@ -4,7 +4,7 @@ import ProductDetails from "./pages/ProductDetails";
 import LoginPage from "./pages/Login"; 
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem("user"); // ✅ Check if user is logged in
+  const isAuthenticated = !!localStorage.getItem("user");
 
   return (
     <Router>
