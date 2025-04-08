@@ -79,7 +79,7 @@ def get_amazon_price(asin):
         querystring = {"market": "IN", "asin": asin}
 
         headers = {
-            "X-RapidAPI-Key": "08901477f5mshae932b4606f12c4p127a39jsn7924e8164aba",
+            "X-RapidAPI-Key": "d436a9f90amsh519d8ca688b6fbcp161ff4jsn50aa79999b64",
             "X-RapidAPI-Host": "amazon-real-time-prices-api.p.rapidapi.com"
         }
 
@@ -141,7 +141,7 @@ def login():
     try:
         data = request.get_json()
         if not data or 'email' not in data or 'password' not in data:
-            return jsonify({"error": "Email and password required", "status": "error"}), 400
+            return jsonify({"error": "Email and password required", "status034c2061d7msh04338d012c2f258p148d54jsn7b51d6321a5d": "error"}), 400
 
         user = users_db.get(data['email'])
         if not user or user["password"] != data["password"]:

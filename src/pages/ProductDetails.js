@@ -25,102 +25,122 @@ export default function ProductDetails() {
       });
   }, [query]);
 
-  // Determine which platform is cheaper
   const amazonPrice = parseFloat(product.amazon.price?.replace(/[^0-9.]/g, "")) || Infinity;
   const flipkartPrice = parseFloat(product.flipkart.price?.replace(/[^0-9.]/g, "")) || Infinity;
   const cheaperPlatform = amazonPrice < flipkartPrice ? "amazon" : "flipkart";
   const priceDifference = Math.abs(amazonPrice - flipkartPrice);
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Product Comparison: {query}</h1>
-      
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p style={styles.error}>{error}</p>
-      ) : (
-        <>
-          <div style={styles.tableContainer}>
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>Platform</th>
-                  <th style={styles.th}>Price</th>
-                  <th style={styles.th}>Link</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={styles.td}>Amazon</td>
-                  <td style={styles.td}>{product.amazon.price || "Not available"}</td>
-                  <td style={styles.td}>
-                    {product.amazon.product_url ? (
-                      <a href={product.amazon.product_url} target="_blank" rel="noopener noreferrer" style={styles.link}>
-                        View on Amazon
-                      </a>
-                    ) : "Not available"}
-                  </td>
-                </tr>
-                <tr>
-                  <td style={styles.td}>Flipkart</td>
-                  <td style={styles.td}>{product.flipkart.price || "Not available"}</td>
-                  <td style={styles.td}>
-                    {product.flipkart.product_url ? (
-                      <a href={product.flipkart.product_url} target="_blank" rel="noopener noreferrer" style={styles.link}>
-                        View on Flipkart
-                      </a>
-                    ) : "Not available"}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <h1 style={styles.title}>Product Comparison: {query}</h1>
 
-          {product.amazon.price && product.flipkart.price && (
-            <div style={styles.recommendation}>
-              <h3>Our Recommendation:</h3>
-              <p>
-                {cheaperPlatform === "amazon" ? "Amazon" : "Flipkart"} is cheaper by ₹{priceDifference.toFixed(2)}. 
-                We recommend purchasing from {" "}
-                <a 
-                  href={cheaperPlatform === "amazon" ? product.amazon.product_url : product.flipkart.product_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  style={styles.recommendationLink}
-                >
-                  {cheaperPlatform === "amazon" ? "Amazon" : "Flipkart"}
-                </a>.
-              </p>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p style={styles.error}>{error}</p>
+        ) : (
+          <>
+            <div style={styles.tableContainer}>
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Platform</th>
+                    <th style={styles.th}>Price</th>
+                    <th style={styles.th}>Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.td}>
+                      <img src="/amazon-logo.png" alt="Amazon" style={styles.logo} />
+                    </td>
+                    <td style={styles.td}>{product.amazon.price || "Not available"}</td>
+                    <td style={styles.td}>
+                      {product.amazon.product_url ? (
+                        <a href={product.amazon.product_url} target="_blank" rel="noopener noreferrer" style={styles.link}>
+                          View on Amazon
+                        </a>
+                      ) : "Not available"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={styles.td}>
+                      <img src="/flipkart-logo.jpg" alt="Flipkart" style={styles.logo} />
+                    </td>
+                    <td style={styles.td}>{product.flipkart.price || "Not available"}</td>
+                    <td style={styles.td}>
+                      {product.flipkart.product_url ? (
+                        <a href={product.flipkart.product_url} target="_blank" rel="noopener noreferrer" style={styles.link}>
+                          View on Flipkart
+                        </a>
+                      ) : "Not available"}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          )}
-        </>
-      )}
+
+            {product.amazon.price && product.flipkart.price && (
+              <div style={styles.recommendation}>
+                <h3>💡 Our Recommendation:</h3>
+                <p>
+                  {cheaperPlatform === "amazon" ? "Amazon" : "Flipkart"} is cheaper by ₹{priceDifference.toFixed(2)}.{" "}
+                  We recommend purchasing from{" "}
+                  <a
+                    href={cheaperPlatform === "amazon" ? product.amazon.product_url : product.flipkart.product_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={styles.recommendationLink}
+                  >
+                    {cheaperPlatform === "amazon" ? "Amazon" : "Flipkart"}
+                  </a>.
+                </p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
 const styles = {
-  container: {
+  page: {
+    background: "linear-gradient(to right, #4facfe, #00f2fe)",
+    minHeight: "100vh",
+    padding: "50px 20px",
     display: "flex",
-    flexDirection: "column",
+    justifyContent: "center",
     alignItems: "center",
-    padding: "20px",
-    maxWidth: "800px",
-    margin: "0 auto",
-    fontFamily: "Arial, sans-serif"
+  },
+  container: {
+    background: "linear-gradient(145deg, #ffffff, #e6e6e6)",
+    borderRadius: "20px",
+    boxShadow: "0 12px 25px rgba(0, 0, 0, 0.15)",
+    padding: "40px",
+    maxWidth: "1000px",
+    width: "100%",
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    animation: "fadeIn 1s ease-in-out",
   },
   title: {
-    color: "#333",
-    marginBottom: "30px",
-    textAlign: "center"
+    background: "linear-gradient(90deg,rgb(75, 137, 243),rgb(103, 53, 239))",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    fontSize: "38px",
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: "35px",
+    letterSpacing: "1px",
+    textShadow: "0 2px 4px rgba(0,0,0,0.1)"
   },
   tableContainer: {
     width: "100%",
     overflowX: "auto",
     marginBottom: "30px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-    borderRadius: "8px"
+    borderRadius: "12px",
+    overflow: "hidden",
   },
   table: {
     width: "100%",
@@ -130,40 +150,47 @@ const styles = {
   th: {
     backgroundColor: "#007bff",
     color: "white",
-    padding: "12px",
-    textAlign: "left"
+    padding: "14px",
+    textAlign: "left",
+    fontSize: "16px",
+    letterSpacing: "0.5px"
   },
   td: {
-    padding: "12px",
+    padding: "14px",
     borderBottom: "1px solid #ddd",
-    textAlign: "left"
+    textAlign: "left",
+    fontSize: "15px"
   },
   link: {
     color: "#007bff",
     textDecoration: "none",
     fontWeight: "bold",
-    "&:hover": {
-      textDecoration: "underline"
-    }
+    transition: "color 0.2s ease-in-out",
   },
   error: {
     color: "red",
-    textAlign: "center"
+    textAlign: "center",
+    fontWeight: "bold"
   },
   recommendation: {
-    backgroundColor: "#f8f9fa",
-    padding: "20px",
-    borderRadius: "8px",
-    width: "100%",
+    background: "linear-gradient(to right, #ffecd2, #fcb69f)",
+    padding: "25px",
+    borderRadius: "14px",
     textAlign: "center",
-    marginTop: "20px"
+    color: "#333",
+    fontWeight: "500",
+    fontSize: "18px",
+    boxShadow: "0 6px 15px rgba(0, 0, 0, 0.1)",
+    marginTop: "30px"
   },
   recommendationLink: {
-    color: "#007bff",
+    color: "#d6006e",
     fontWeight: "bold",
-    textDecoration: "none",
-    "&:hover": {
-      textDecoration: "underline"
-    }
+    textDecoration: "underline"
+  },
+  logo: {
+    width: "100px",
+    height: "auto",
+    marginBottom: "10px"
   }
 };

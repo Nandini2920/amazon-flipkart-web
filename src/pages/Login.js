@@ -25,68 +25,110 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "20vh",
-      gap: "16px",
-      padding: "20px",
-      boxSizing: "border-box",
-      marginBottom:"90px"
-    }}>
-      <h1 style={{ margin: 0 }}>Login</h1>
-      
-      <input 
-        type="email" 
-        placeholder="Email" 
-        value={email} 
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ 
-          padding: "12px 16px",
-          width: "100%",
-          maxWidth: "350px",
-          fontSize: "16px",
-          border: "1px solid #ccc",
-          borderRadius: "4px"
-        }} 
-      />
-      
-      <input 
-        type="password" 
-        placeholder="Password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ 
-          padding: "12px 16px",
-          width: "100%",
-          maxWidth: "350px",
-          fontSize: "16px",
-          border: "1px solid #ccc",
-          borderRadius: "4px"
-        }} 
-      />
-      
-      {error && <p style={{ color: "red", margin: 0 }}>{error}</p>}
-      
-      <button 
-        onClick={handleLogin}
-        style={{ 
-          padding: "12px 24px",
-          fontSize: "16px",
-          cursor: "pointer",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          width: "100%",
-          maxWidth: "400px",
-          fontWeight: "bold"
-        }}
-      >
-        Login
-      </button>
+    <div style={styles.page}>
+      <div style={styles.overlay}></div>
+
+      <div style={styles.formBox}>
+        <h2 style={styles.formTitle}>Welcome Back!</h2>
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={styles.input}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={styles.input}
+        />
+
+        {error && <p style={styles.error}>{error}</p>}
+
+        <button onClick={handleLogin} style={styles.button}>
+          Login
+        </button>
+      </div>
     </div>
   );
 }
+
+const styles = {
+  page: {
+    height: "100vh",
+    width: "100vw",
+    backgroundImage: 'url("/thump.png")', // Put the image in public folder
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    fontFamily: "Segoe UI, sans-serif",
+    overflow: "hidden",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    height: "100%",
+    width: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backdropFilter: "blur(6px)",
+    zIndex: 0,
+  },
+  formBox: {
+    position: "relative",
+    zIndex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backdropFilter: "blur(12px)",
+    border: "1px solid rgba(255,255,255,0.3)",
+    padding: "40px 50px",
+    borderRadius: "20px",
+    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.3)",
+    maxWidth: "420px",
+    width: "90%",
+    textAlign: "center",
+    color: "white",
+  },
+  formTitle: {
+    marginBottom: "28px",
+    fontSize: "32px",
+    fontWeight: "600",
+    color: "#ffffff",
+    textShadow: "1px 1px 3px rgba(0,0,0,0.5)",
+  },
+  input: {
+    width: "100%",
+    padding: "14px 18px",
+    marginBottom: "18px",
+    fontSize: "16px",
+    border: "1px solid #ddd",
+    borderRadius: "12px",
+    backgroundColor: "rgba(255,255,255,0.6)",
+    color: "#333",
+    outline: "none",
+  },
+  error: {
+    color: "#ff4d4d",
+    fontSize: "14px",
+    marginBottom: "16px",
+  },
+  button: {
+    width: "100%",
+    padding: "14px",
+    backgroundColor: "#007bff",
+    color: "white",
+    border: "none",
+    fontSize: "17px",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontWeight: "600",
+    transition: "background 0.3s",
+  },
+};
