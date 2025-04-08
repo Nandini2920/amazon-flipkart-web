@@ -1,7 +1,37 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const bgImages = ["/a.jpg", "/f.jpg"]; // Make sure these images are in the public folder
+const bgImages = ["/a.jpg", "/f.jpg"];
+
+const recommendations = [
+  // Mobiles
+  { name: "OnePlus 13R 5G", image: "/oneplus-13r-1.jpg", type: "mobile" },
+  { name: "Samsung Galaxy M35 5G", image: "/samsung-galaxy-m35.jpg", type: "mobile" },
+  { name: "Redmi Note 13 Pro", image: "/xiaomi-redmi-note-13-pro-5g.jpg", type: "mobile" },
+  { name: "iPhone 15", image: "/apple-iphone-15.jpg", type: "mobile" },
+  { name: "Realme Narzo 60", image: "/realme-narzo60-.jpg", type: "mobile" },
+  { name: "Motorola G73 5G", image: "/moto.jpg", type: "mobile" },
+  { name: "Infinix Zero 5G", image: "/infinix.jpg", type: "mobile" },
+  { name: "Vivo T2 5G", image: "/vivo.jpg", type: "mobile" },
+  { name: "POCO X6 Pro", image: "/poco.jpeg", type: "mobile" },
+  { name: "iPhone 16", image: "/16.jpg", type: "mobile" },
+  { name: "Samsung Galaxy A15", image: "/sam.jpeg", type: "mobile" },
+  { name: "Realme 12+ 5G", image: "/realme.jpeg", type: "mobile" },
+
+  // Laptops
+  { name: "HP Victus Ryzen 5", image: "/1.jpeg", type: "laptop" },
+  { name: "ASUS TUF Gaming F15", image: "/2.jpeg", type: "laptop" },
+  { name: "Lenovo Legion 5", image: "/3.jpeg", type: "laptop" },
+  { name: "MacBook Air M1", image: "/4.jpeg", type: "laptop" },
+  { name: "Dell Inspiron 15", image: "/5.jpeg", type: "laptop" },
+  { name: "Acer Aspire 7", image: "/6.jpeg", type: "laptop" },
+  { name: "MSI Modern 14", image: "/7.jpeg", type: "laptop" },
+  { name: "Samsung Galaxy Book3", image: "/8.jpeg", type: "laptop" },
+  { name: "ASUS ROG Zephyrus G14", image: "/9.jpeg", type: "laptop" },
+  { name: "Lenovo IdeaPad Slim 5", image: "/10.jpeg", type: "laptop" },
+  { name: "HP Pavilion Plus", image: "/11.jpeg", type: "laptop" },
+  { name: "Acer Swift Go 14", image: "/12.jpeg", type: "laptop" },
+];
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
@@ -13,11 +43,10 @@ export default function SearchPage() {
     if (!user) navigate("/");
   }, [navigate]);
 
-  // Carousel effect
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBg((prev) => (prev + 1) % bgImages.length);
-    }, 5000); // Change image every 5 seconds
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -27,9 +56,15 @@ export default function SearchPage() {
     }
   };
 
+  const handleRecommendationClick = (productName) => {
+    navigate(`/product-details?query=${productName}`);
+  };
+
+  const mobiles = recommendations.filter((p) => p.type === "mobile");
+  const laptops = recommendations.filter((p) => p.type === "laptop");
+
   return (
-    <div style={{ ...styles.page }}>
-      {/* Background Carousel */}
+    <div style={styles.page}>
       {bgImages.map((img, index) => (
         <div
           key={index}
@@ -42,22 +77,50 @@ export default function SearchPage() {
         />
       ))}
 
-      {/* Overlay content */}
       <div style={styles.content}>
         <h1 style={styles.title}>PriceMate</h1>
-        <h2 style={styles.subtitle}>
-          <u>Compare Product price:</u>
-        </h2>
+        <h2 style={styles.subtitle}><u>Compare Product Price</u></h2>
+
         <input
           type="text"
-          placeholder="Search Product :"
+          placeholder="Search Product"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           style={styles.input}
         />
-        <button onClick={handleSearch} style={styles.button}>
-          Search
-        </button>
+        <button onClick={handleSearch} style={styles.button}>Search</button>
+
+        {/* Mobiles */}
+        <h2 style={styles.sectionHeading}>Mobile Recommendations</h2>
+        <div style={styles.recommendationGrid}>
+          {mobiles.map((product, index) => (
+            <div key={index} style={styles.card} onClick={() => handleRecommendationClick(product.name)}>
+              <img
+                src={product.image}
+                alt={product.name}
+                style={styles.productImage}
+                onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
+              />
+              <p style={styles.productName}>{product.name}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Laptops */}
+        <h2 style={styles.sectionHeading}>Laptop Recommendations</h2>
+        <div style={styles.recommendationGrid}>
+          {laptops.map((product, index) => (
+            <div key={index} style={styles.card} onClick={() => handleRecommendationClick(product.name)}>
+              <img
+                src={product.image}
+                alt={product.name}
+                style={styles.productImage}
+                onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
+              />
+              <p style={styles.productName}>{product.name}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -67,7 +130,7 @@ const styles = {
   page: {
     height: "100vh",
     width: "100%",
-    overflow: "hidden",
+    overflowY: "scroll",
     position: "relative",
     fontFamily: "Georgia, serif",
   },
@@ -84,14 +147,10 @@ const styles = {
   content: {
     position: "relative",
     zIndex: 2,
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.2)",
-    backdropFilter: "blur(4px)",
-    padding: "20px",
+    minHeight: "100%",
+    padding: "30px",
+    backgroundColor: "rgba(255,255,255,0.7)",
+    backdropFilter: "blur(5px)",
     textAlign: "center",
   },
   title: {
@@ -125,6 +184,42 @@ const styles = {
     borderRadius: "14px",
     cursor: "pointer",
     boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
-    transition: "background 0.3s",
+    marginBottom: "30px",
+  },
+  sectionHeading: {
+    fontSize: "28px",
+    fontWeight: "bold",
+    marginTop: "40px",
+    marginBottom: "20px",
+    color: "#222",
+    textShadow: "1px 1px 3px white",
+  },
+  recommendationGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+    gap: "20px",
+    justifyItems: "center",
+  },
+  card: {
+    background: "#fff",
+    padding: "10px",
+    borderRadius: "10px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+    cursor: "pointer",
+    width: "100%",
+    maxWidth: "180px",
+    transition: "transform 0.2s",
+  },
+  productImage: {
+    width: "100%",
+    height: "150px",
+    objectFit: "cover",
+    borderRadius: "8px",
+  },
+  productName: {
+    marginTop: "10px",
+    fontWeight: "bold",
+    fontSize: "14px",
+    color: "#333",
   },
 };

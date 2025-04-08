@@ -33,115 +33,138 @@ http = requests.Session()
 http.mount("https://", adapter)
 http.mount("http://", adapter)
 
-def get_amazon_asin(product_name):
+# ScraperAPI configuration
+SCRAPER_API_KEY = "1ca150d39af21ba962354d607c6dcdb3"  # Replace with your actual ScraperAPI key
+
+def scrape_amazon(product_name):
     try:
         # Random delay to prevent rate limiting
         time.sleep(random.uniform(1, 2))
         
-        query = product_name.replace(" ", "+")
-        search_url = f"https://www.amazon.in/s?k={query}"
+        amazon_url = f"https://www.amazon.in/s?k={product_name.replace(' ', '+')}"
+        
+        payload = {
+            "api_key": SCRAPER_API_KEY,
+            "url": amazon_url,
+            "keep_headers": "true"
+        }
 
         headers = {
             "User-Agent": UserAgent().random,
             "Accept-Language": "en-US,en;q=0.9",
         }
 
-        logger.info(f"Fetching Amazon ASIN for: {product_name}")
-        response = http.get(search_url, headers=headers, timeout=10)
+        logger.info(f"Scraping Amazon for: {product_name}")
+        response = http.get("https://api.scraperapi.com/", params=payload, headers=headers, timeout=10)
         
-        if response.status_code == 503:
-            logger.warning("Amazon CAPTCHA triggered")
-            return None
-            
-        response.raise_for_status()
+        if response.status_code != 200:
+            logger.warning(f"Amazon response status: {response.status_code}")
+            return {"products": [], "status": "error"}
 
         soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # More robust product detection
-        product = soup.select_one('div[data-asin]:not([data-asin=""])') or \
-                  soup.find('div', {'data-component-type': 's-search-result'})
-        
-        if product and hasattr(product, 'data-asin'):
-            asin = product["data-asin"]
-            logger.info(f"Found ASIN: {asin}")
-            return asin
-            
-        logger.warning("No ASIN found in search results")
-        return None
+        products = soup.find_all("div", {"data-component-type": "s-search-result"})
 
-    except Exception as e:
-        logger.error(f"Amazon ASIN search failed: {str(e)}")
-        return None
+        if not products:
+            logger.warning("No products found on Amazon.")
+            return {"products": [], "status": "error"}
 
-def get_amazon_price(asin):
-    try:
-        url = "https://amazon-real-time-prices-api.p.rapidapi.com/price"
-        querystring = {"market": "IN", "asin": asin}
+        product_list = []
+        for product in products[:5]:  # Limit to 5 products
+            title_element = product.find("h2")
+            name = title_element.text.strip() if title_element else "Name not available"
 
-        headers = {
-            "X-RapidAPI-Key": "d436a9f90amsh519d8ca688b6fbcp161ff4jsn50aa79999b64",
-            "X-RapidAPI-Host": "amazon-real-time-prices-api.p.rapidapi.com"
-        }
+            link_tag = title_element.find("a", href=True) if title_element else None
+            href = link_tag.get("href") if link_tag else None
+            product_link = f"https://www.amazon.in{href}" if href else "Link not available"
 
-        logger.info(f"Fetching Amazon price for ASIN: {asin}")
-        response = http.get(url, headers=headers, params=querystring, timeout=10)
-        response.raise_for_status()
+            price_whole = product.select_one("span.a-price span.a-price-whole")
+            price_symbol = product.select_one("span.a-price span.a-price-symbol")
+            price_fraction = product.select_one("span.a-price span.a-price-fraction")
 
-        data = response.json()
+            if price_symbol and price_whole:
+                price = f"{price_symbol.text}{price_whole.text}{price_fraction.text if price_fraction else ''}"
+            else:
+                price = "Price not available"
+
+            product_list.append({
+                "name": name,
+                "price": price,
+                "product_url": product_link
+            })
+
         return {
-            "price": data.get("price", "N/A"),
-            "product_url": data.get("productUrl", "N/A"),
+            "products": product_list,
             "status": "success"
         }
 
     except Exception as e:
-        logger.error(f"Amazon API request failed: {str(e)}")
-        return {"price": "N/A", "product_url": "N/A", "status": "error"}
+        logger.error(f"Amazon scraping failed: {str(e)}")
+        return {"products": [], "status": "error"}
 
 def scrape_flipkart(product_name):
     try:
         # Random delay to prevent rate limiting
         time.sleep(random.uniform(1, 2))
         
-        api_key = "ba8b630610e8750434163b86c414068e"
         flipkart_url = f"https://www.flipkart.com/search?q={product_name.replace(' ', '%20')}"
+        
         payload = {
-            "api_key": api_key,
+            "api_key": SCRAPER_API_KEY,
             "url": flipkart_url,
+            "keep_headers": "true"
+        }
+
+        headers = {
+            "User-Agent": UserAgent().random,
+            "Accept-Language": "en-US,en;q=0.9",
         }
 
         logger.info(f"Scraping Flipkart for: {product_name}")
-        response = http.get("https://api.scraperapi.com/", params=payload, timeout=10)
-        response.raise_for_status()
+        response = http.get("https://api.scraperapi.com/", params=payload, headers=headers, timeout=10)
+        
+        if response.status_code != 200:
+            logger.warning(f"Flipkart response status: {response.status_code}")
+            return {"products": [], "status": "error"}
 
         soup = BeautifulSoup(response.text, "html.parser")
-        
-        # More robust product detection
-        product_container = soup.find("div", {"data-id": True}) or \
-                          soup.find("div", class_="_4ddWXP")
-        
-        if not product_container:
-            logger.warning("No product container found on Flipkart")
-            return {"price": "N/A", "product_url": "N/A", "status": "error"}
+        products = soup.select("div._1AtVbE")  # Main product container
 
-        link_element = product_container.find("a", href=True)
-        product_url = "https://www.flipkart.com" + link_element["href"] if link_element else "N/A"
+        if not products:
+            logger.warning("No products found on Flipkart.")
+            return {"products": [], "status": "error"}
 
-        price_element = product_container.find(string=re.compile(r"₹\d"))
-        price = price_element.strip() if price_element else "N/A"
+        product_list = []
+        for product in products[:5]:  # Limit to 5 products
+            name_tag = product.select_one("a.IRpwTa") or product.select_one("a.s1Q9rs")
+            name = name_tag.text.strip() if name_tag else "Name not available"
 
-        return {"price": price, "product_url": product_url, "status": "success"}
+            href = name_tag.get("href") if name_tag else None
+            product_link = f"https://www.flipkart.com{href}" if href else "Link not available"
+
+            price_tag = product.select_one("div._30jeq3")
+            price = price_tag.text.strip() if price_tag else "Price not available"
+
+            product_list.append({
+                "name": name,
+                "price": price,
+                "product_url": product_link
+            })
+
+        return {
+            "products": product_list,
+            "status": "success"
+        }
 
     except Exception as e:
         logger.error(f"Flipkart scraping failed: {str(e)}")
-        return {"price": "N/A", "product_url": "N/A", "status": "error"}
+        return {"products": [], "status": "error"}
 
 @app.route('/login', methods=['POST'])
 def login():
     try:
         data = request.get_json()
         if not data or 'email' not in data or 'password' not in data:
-            return jsonify({"error": "Email and password required", "status034c2061d7msh04338d012c2f258p148d54jsn7b51d6321a5d": "error"}), 400
+            return jsonify({"error": "Email and password required", "status": "error"}), 400
 
         user = users_db.get(data['email'])
         if not user or user["password"] != data["password"]:
@@ -168,22 +191,21 @@ def fetch_product():
 
         logger.info(f"Processing product search for: {product_name}")
         
-        amazon_data = {"price": "N/A", "product_url": "N/A", "status": "error"}
-        flipkart_data = {"price": "N/A", "product_url": "N/A", "status": "error"}
-
-        # Get Amazon data with retry
-        asin = get_amazon_asin(product_name)
-        if asin:
-            amazon_data = get_amazon_price(asin)
-
-        # Get Flipkart data with retry
+        amazon_data = scrape_amazon(product_name)
         flipkart_data = scrape_flipkart(product_name)
 
         return jsonify({
-            "amazon": amazon_data,
-            "flipkart": flipkart_data,
-            "status": "success" if amazon_data["status"] == "success" or flipkart_data["status"] == "success" else "partial_success"
-        })
+    "amazon": {
+        "main": amazon_data["products"][0] if amazon_data["products"] else {},
+        "more": amazon_data["products"][1:] if len(amazon_data["products"]) > 1 else []
+    },
+    "flipkart": {
+        "main": flipkart_data["products"][0] if flipkart_data["products"] else {},
+        "more": flipkart_data["products"][1:] if len(flipkart_data["products"]) > 1 else []
+    },
+    "status": "success" if amazon_data["status"] == "success" or flipkart_data["status"] == "success" else "partial_success"
+})
+
 
     except Exception as e:
         logger.error(f"Product search failed: {str(e)}")
