@@ -29,6 +29,7 @@ export default function LoginPage() {
       <div style={styles.overlay}></div>
 
       <div style={styles.formBox}>
+        <h1 style={styles.title}>PriceMate</h1>
         <h2 style={styles.formTitle}>Welcome Back!</h2>
 
         <input

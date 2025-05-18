@@ -7,6 +7,8 @@ export default function ProductDetails() {
   const [product, setProduct] = useState({ amazon: {}, flipkart: {} });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showMoreAmazon, setShowMoreAmazon] = useState(false);
+  const [showMoreFlipkart, setShowMoreFlipkart] = useState(false);
 
   useEffect(() => {
     fetch(`http://127.0.0.1:8000/product?product_name=${query}`)
@@ -48,6 +50,7 @@ export default function ProductDetails() {
                     <th style={styles.th}>Platform</th>
                     <th style={styles.th}>Price</th>
                     <th style={styles.th}>Link</th>
+                    <th style={styles.th}>More Options</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -63,7 +66,26 @@ export default function ProductDetails() {
                         </a>
                       ) : "Not available"}
                     </td>
+                    <td style={styles.td}>
+                      <button onClick={() => setShowMoreAmazon(!showMoreAmazon)} style={styles.moreBtn}>
+                        {showMoreAmazon ? "Hide" : "Show"} More
+                      </button>
+                      {showMoreAmazon && product.amazon.more_options.length > 0 && (
+                        <ul style={styles.moreList}>
+                          {product.amazon.more_options.map((item, index) => (
+                            <li key={index}>
+                              ₹{item.price} –{" "}
+                              <a href={item.product_url} target="_blank" rel="noopener noreferrer" style={styles.link}>
+                                View
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                    </td>
                   </tr>
+
                   <tr>
                     <td style={styles.td}>
                       <img src="/flipkart-logo.jpg" alt="Flipkart" style={styles.logo} />
@@ -75,6 +97,23 @@ export default function ProductDetails() {
                           View on Flipkart
                         </a>
                       ) : "Not available"}
+                    </td>
+                    <td style={styles.td}>
+                      <button onClick={() => setShowMoreFlipkart(!showMoreFlipkart)} style={styles.moreBtn}>
+                        {showMoreFlipkart ? "Hide" : "Show"} More
+                      </button>
+                      {showMoreFlipkart && product.flipkart.more_options?.length > 0 && (
+                        <ul style={styles.moreList}>
+                          {product.flipkart.more_options.map((item, index) => (
+                            <li key={index}>
+                              {item.price} –{" "}
+                              <a href={item.product_url} target="_blank" rel="noopener noreferrer" style={styles.link}>
+                                View
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </td>
                   </tr>
                 </tbody>
@@ -104,6 +143,9 @@ export default function ProductDetails() {
     </div>
   );
 }
+
+
+
 
 const styles = {
   page: {
@@ -192,5 +234,21 @@ const styles = {
     width: "100px",
     height: "auto",
     marginBottom: "10px"
-  }
+  },
+  moreBtn: {
+    backgroundColor: "#f5f5f5",
+    border: "1px solid #ccc",
+    padding: "6px 12px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "bold",
+  },
+  moreList: {
+    marginTop: "10px",
+    listStyleType: "disc",
+    paddingLeft: "20px",
+    color: "#333",
+    fontSize: "14px",
+  },
 };
